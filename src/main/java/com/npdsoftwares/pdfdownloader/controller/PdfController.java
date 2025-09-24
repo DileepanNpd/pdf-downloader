@@ -1,22 +1,21 @@
 package com.npdsoftwares.pdfdownloader.controller;
 
 import com.npdsoftwares.pdfdownloader.model.HtmlPdfRequest;
-import com.npdsoftwares.pdfdownloader.model.PdfResponse;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/pdf")
 public class PdfController {
 
-    @PostMapping("/pdf/generate")
-    public ResponseEntity<byte[]> generatePdf(@RequestBody PdfRequest request) {
+    @PostMapping("/generate")
+    public ResponseEntity<byte[]> generatePdf(@RequestBody HtmlPdfRequest request) {
         try {
             String html = "<html><body>" + request.getHtml() + "</body></html>";
     
