@@ -1,14 +1,14 @@
-# Use OpenJDK 17
+# Use OpenJDK 17 Alpine for lightweight image
 FROM eclipse-temurin:17-jdk-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven build output
-COPY target/pdfgenerator-1.0.0.jar app.jar
+# Copy the JAR built by Maven
+COPY target/pdfdownloader-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose port
+# Expose port 8080 (Cloud Run default)
 EXPOSE 8080
 
-# Run Spring Boot
+# Run the Spring Boot JAR
 ENTRYPOINT ["java","-jar","app.jar"]
