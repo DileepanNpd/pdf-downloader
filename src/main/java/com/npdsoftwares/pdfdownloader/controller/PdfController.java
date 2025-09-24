@@ -15,39 +15,30 @@ import java.util.Base64;
 @RequestMapping("/pdf")
 public class PdfController {
 
-    @PostMapping(value = "/generate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PdfResponse generatePdf(@RequestBody HtmlPdfRequest request) {
+    @PostMapping("/pdf/generate")
+    public ResponseEntity<byte[]> generatePdf(@RequestBody PdfRequest request) {
         try {
-            String htmlFragment = request.getHtml();
-            if (htmlFragment == null || htmlFragment.isEmpty()) {
-                throw new IllegalArgumentException("HTML content is empty");
-            }
-
-            // --- Wrap plain HTML into well-formed XHTML ---
-            Document doc = Jsoup.parse(htmlFragment);
-            doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-            doc.outputSettings().escapeMode(org.jsoup.nodes.Entities.EscapeMode.xhtml);
-            doc.head().prependElement("meta").attr("charset", "UTF-8");
-            doc.title("PDF Document");
-            String xhtml = doc.html();
-
-            String filename = (request.getFilename() != null && !request.getFilename().isEmpty())
-                    ? request.getFilename()
-                    : "document.pdf";
-
-            // --- Generate PDF ---
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            String html = "<html><body>" + request.getHtml() + "</body></html>";
+    
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.withHtmlContent(xhtml, null);
-            builder.toStream(os);
+            builder.withHtmlContent(html, null);
+            builder.toStream(outputStream);
             builder.run();
-
-            String pdfBase64 = Base64.getEncoder().encodeToString(os.toByteArray());
-
-            return new PdfResponse(filename, pdfBase64);
-
+    
+            byte[] pdfBytes = outputStream.toByteArray();
+    
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.builder("attachment")
+                    .filename(request.getFilename())
+                    .build());
+    
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    
         } catch (Exception e) {
-            throw new RuntimeException("PDF generation failed: " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
 }
