@@ -2,6 +2,8 @@ package com.npdsoftwares.pdfdownloader.controller;
 
 import com.npdsoftwares.pdfdownloader.model.HtmlPdfRequest;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,12 +15,16 @@ import java.io.ByteArrayOutputStream;
 @RestController
 @RequestMapping("/pdf")
 public class PdfController {
+    private static final Logger logger = LoggerFactory.getLogger(PdfController.class);
 
     @PostMapping("/generate")
     public ResponseEntity<byte[]> generatePdf(@RequestBody HtmlPdfRequest request) {
         try {
+            logger.info("generatePdf");
+            logger.info("html " + request.getHtml());
+
             String html = "<html><body>" + request.getHtml() + "</body></html>";
-    
+            logger.info("print html " + html);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.withHtmlContent(html, null);
